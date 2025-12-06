@@ -130,7 +130,7 @@ const headers = [
   { title: 'Status', key: 'status', sortable: true },
 ]
 
-const { fetchItems } = useApi()
+const { fetchItems, fetchCategoriesById } = useApi()
 
 const loadData = async () => {
   loading.value = true
@@ -138,14 +138,31 @@ const loadData = async () => {
     const response = await fetchItems()
     const itemsArray = Array.isArray(response) ? response : []
 
-    items.value = itemsArray.map((item: any) => ({
-      id: `#${item.id}`,
-      description: item.description || item.name || 'No description',
-      category: item.category?.name || 'Uncategorized',
-      dateAdded: new Date(item.dateLost || item.createdAt).toLocaleDateString('en-CA'),
-      status: item.status === 1 ? 'Published' : 'Draft',
-      rawStatus: item.status
-    }))
+    const itemsWithCategories = await Promise.all(
+      itemsArray.map(async (item: any) => {
+        let categoryName = item.category?.name || 'Uncategorized'
+        
+        if (!item.category && item.categoryId) {
+          try {
+            const category = await fetchCategoriesById(item.categoryId)
+            categoryName = category?.name || 'Uncategorized'
+          } catch (error) {
+            console.error(`Failed to fetch category ${item.categoryId}:`, error)
+          }
+        }
+        
+        return {
+          id: `#${item.id}`,
+          description: item.description || item.name || 'No description',
+          category: categoryName,
+          dateAdded: new Date(item.dateLost || item.createdAt).toLocaleDateString('en-CA'),
+          status: item.status === 1 ? 'Published' : 'Draft',
+          rawStatus: item.status
+        }
+      })
+    )
+
+    items.value = itemsWithCategories
 
     stats.value.totalItems = items.value.filter((item: any) => item.rawStatus === 1).length
     

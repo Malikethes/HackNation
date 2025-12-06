@@ -32,6 +32,21 @@ export const useApi = () => {
         }
     }
 
+    const fetchCategoriesById = async (id: any) => {
+        try {
+        const response = await $fetch(`${baseURL}/Categories/${id}`, {
+            method: 'GET',
+            headers: {
+                'ngrok-skip-browser-warning': 'true'
+            }
+        })
+        return response
+        } catch (error) {
+        console.error('Error fetching items:', error)
+        throw error
+        }
+    }
+
     const fetchLocations = async () => {
         try {
         const response = await $fetch(`${baseURL}/Locations`, {
@@ -63,7 +78,25 @@ export const useApi = () => {
         }
     }
 
+    const createLocation = async (itemData: any) => {
+        try {
+        const response = await $fetch(`${baseURL}/Locations`, {
+            method: 'POST',
+            body: itemData,
+            headers: {
+                'ngrok-skip-browser-warning': 'true'
+            }
+        })
+        return response
+        } catch (error) {
+        console.error('Error fetching items:', error)
+        throw error
+        }
+    }
+
     return {
+        fetchCategoriesById,
+        createLocation,
         fetchItems,
         fetchCategories,
         fetchLocations,

@@ -23,28 +23,6 @@
       :rules="[rules.required]"
     />
 
-    <v-text-field
-      :model-value="formData.uniqueIdentifiers"
-      @update:model-value="formData.uniqueIdentifiers = $event"
-      variant="outlined"
-      color="primary"
-      placeholder="e.g., Serial number, name tag, specific scratches"
-      class="mb-4"
-    >
-      <template #label>
-        <div class="d-flex align-center">
-          <span>List any unique identifiers (optional)</span>
-          <v-tooltip location="top">
-            <template #activator="{ props }">
-              <v-icon v-bind="props" size="small" class="ml-2">
-                mdi-help-circle-outline
-              </v-icon>
-            </template>
-            <span>Include details like serial numbers, engravings, name tags, or specific scratches that can uniquely identify the item.</span>
-          </v-tooltip>
-        </div>
-      </template>
-    </v-text-field>
   </v-form>
 </template>
 
