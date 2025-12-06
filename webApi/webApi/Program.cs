@@ -1,4 +1,10 @@
+using Microsoft.EntityFrameworkCore;
+using webApi.Data;
+
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddDbContext<SwiftFoundContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
 
 // Add services to the container.
 
