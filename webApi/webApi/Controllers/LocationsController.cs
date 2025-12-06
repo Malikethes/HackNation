@@ -1,11 +1,12 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using webApi.Data;
+using webApi.Dtos;
 using webApi.Models;
 
 namespace webApi.Controllers
@@ -76,8 +77,18 @@ namespace webApi.Controllers
         // POST: api/Locations
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Location>> PostLocation(Location location)
+        public async Task<ActionResult<Location>> PostLocation(CreateLocationDto createLocationDto)
         {
+            var location = new Location
+            {
+                Longitude = createLocationDto.Longitude,
+                Latitude = createLocationDto.Latitude,
+                Address = createLocationDto.Address,
+                City = createLocationDto.City,
+                ProvinceId = createLocationDto.ProvinceId,
+                PostalCode = createLocationDto.PostalCode
+            };
+
             _context.Locations.Add(location);
             await _context.SaveChangesAsync();
 
