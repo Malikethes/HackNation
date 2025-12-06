@@ -13,6 +13,7 @@ namespace webApi.Data
         public DbSet<Item> Items { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<Location> Locations { get; set; }
+        public DbSet<Province> Provinces { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -28,6 +29,12 @@ namespace webApi.Data
                 .HasOne(i => i.Location)
                 .WithMany()
                 .HasForeignKey(i => i.LocationId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Location>()
+                .HasOne(l => l.Province)
+                .WithMany()
+                .HasForeignKey(l => l.ProvinceId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Item>()

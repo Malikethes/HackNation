@@ -1,12 +1,14 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using webApi.Data;
+using webApi.Dtos;
 using webApi.Models;
+using webApi.Services;
 
 namespace webApi.Controllers
 {
@@ -15,17 +17,28 @@ namespace webApi.Controllers
     public class ItemsController : ControllerBase
     {
         private readonly SwiftFoundContext _context;
+        private readonly IImageService _imageService;
+        private readonly ILogger<ItemsController> _logger;
 
-        public ItemsController(SwiftFoundContext context)
+        public ItemsController(
+            SwiftFoundContext context,
+            IImageService imageService,
+            ILogger<ItemsController> logger)
         {
             _context = context;
+            _imageService = imageService;
+            _logger = logger;
         }
 
         // GET: api/Items
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Item>>> GetItems()
         {
-            return await _context.Items.ToListAsync();
+            return await _context.Items
+                .Include(i => i.Category)
+                .Include(i => i.Location)
+                    .ThenInclude(l => l.Province)
+                .ToListAsync();
         }
 
         // GET: api/Items/5
@@ -43,16 +56,52 @@ namespace webApi.Controllers
         }
 
         // PUT: api/Items/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutItem(int id, Item item)
+        public async Task<IActionResult> UpdateItem(int id, [FromForm] ItemUpdateDto dto, IFormFile? photo)
         {
-            if (id != item.Id)
+            var item = await _context.Items.FindAsync(id);
+            if (item == null)
+                return NotFound();
+
+            if (dto.LocationId.HasValue)
             {
-                return BadRequest();
+                var locationExists = await _context.Locations.AnyAsync(l => l.Id == dto.LocationId.Value);
+                if (!locationExists)
+                    return BadRequest(new { error = $"Location with ID {dto.LocationId.Value} does not exist" });
             }
 
-            _context.Entry(item).State = EntityState.Modified;
+            if (photo != null)
+            {
+                if (!string.IsNullOrEmpty(item.PhotoPublicId))
+                {
+                    await _imageService.DeleteImageAsync(item.PhotoPublicId);
+                }
+
+                var (url, publicId) = await _imageService.UploadImageAsync(photo);
+                item.PhotoUrl = url;
+                item.PhotoPublicId = publicId;
+            }
+
+            if (!string.IsNullOrWhiteSpace(dto.Name))
+                item.Name = dto.Name;
+
+            if (!string.IsNullOrWhiteSpace(dto.Description))
+                item.Description = dto.Description;
+
+            if (dto.DateLost.HasValue)
+                item.DateLost = dto.DateLost.Value;
+
+            if (dto.TimeLost.HasValue)
+                item.TimeLost = dto.TimeLost;
+
+            if (dto.CategoryId.HasValue)
+                item.CategoryId = dto.CategoryId.Value;
+
+            if (dto.LocationId.HasValue)
+                item.LocationId = dto.LocationId.Value;
+
+            if (dto.Status.HasValue)
+                item.Status = dto.Status.Value;
 
             try
             {
@@ -61,13 +110,13 @@ namespace webApi.Controllers
             catch (DbUpdateConcurrencyException)
             {
                 if (!ItemExists(id))
-                {
                     return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                throw;
+            }
+            catch (DbUpdateException ex)
+            {
+                _logger.LogError(ex, "Database error while updating item {ItemId}", id);
+                return BadRequest(new { error = "Failed to update item. Please check foreign key constraints." });
             }
 
             return NoContent();
@@ -76,12 +125,43 @@ namespace webApi.Controllers
         // POST: api/Items
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Item>> PostItem(Item item)
+        public async Task<ActionResult<Item>> CreateItem([FromForm] ItemCreateDto dto, IFormFile? photo)
         {
-            _context.Items.Add(item);
-            await _context.SaveChangesAsync();
+            try
+            {
+                string photoUrl = string.Empty;
+                string? photoPublicId = null;
 
-            return CreatedAtAction("GetItem", new { id = item.Id }, item);
+                if (photo != null)
+                {
+                    var (url, publicId) = await _imageService.UploadImageAsync(photo);
+                    photoUrl = url;
+                    photoPublicId = publicId;
+                }
+
+                var item = new Item
+                {
+                    Name = dto.Name,
+                    Description = dto.Description,
+                    DateLost = dto.DateLost,
+                    CategoryId = dto.CategoryId,
+                    LocationId = dto.LocationId,
+                    PhotoUrl = photoUrl,
+                    PhotoPublicId = photoPublicId,
+                    Status = dto.Status,
+                    CreatedAt = DateTime.UtcNow
+                };
+
+                _context.Items.Add(item);
+                await _context.SaveChangesAsync();
+
+                return CreatedAtAction(nameof(GetItem), new { id = item.Id }, item);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error creating item");
+                return BadRequest(new { error = ex.Message });
+            }
         }
 
         // DELETE: api/Items/5
@@ -90,8 +170,11 @@ namespace webApi.Controllers
         {
             var item = await _context.Items.FindAsync(id);
             if (item == null)
-            {
                 return NotFound();
+
+            if (!string.IsNullOrEmpty(item.PhotoPublicId))
+            {
+                await _imageService.DeleteImageAsync(item.PhotoPublicId);
             }
 
             _context.Items.Remove(item);

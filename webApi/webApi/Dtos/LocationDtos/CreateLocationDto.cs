@@ -1,14 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
-namespace webApi.Models
+namespace webApi.Dtos
 {
-    [Table("Locations")]
-    public class Location
+    public class CreateLocationDto
     {
-        [Key]
-        public int Id { get; set; }
-
         [Required]
         [Range(-180.0, 180.0)]
         public float Longitude { get; set; }
@@ -26,10 +21,7 @@ namespace webApi.Models
         public string City { get; set; } = string.Empty;
 
         [Required]
-        [ForeignKey(nameof(Province))]
         public int ProvinceId { get; set; }
-
-        public Province Province { get; set; } = null!;
 
         [Required]
         [MaxLength(20)]

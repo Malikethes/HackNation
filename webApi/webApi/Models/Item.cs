@@ -31,7 +31,11 @@ namespace webApi.Models
         public Category Category { get; set; } = null!;
 
         [Required]
-        public byte[] Photo { get; set; } = Array.Empty<byte>();
+        [MaxLength(500)]
+        public string PhotoUrl { get; set; } = string.Empty;
+
+        [MaxLength(200)]
+        public string? PhotoPublicId { get; set; }
 
         [Required]
         public ItemStatus Status { get; set; } = ItemStatus.Draft;
