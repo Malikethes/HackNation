@@ -12,7 +12,7 @@
             </defs>
           </svg>
         </div>
-        <h2 class="text-h6 font-weight-bold">SwiftFound</h2>
+        <h2 class="text-h6 font-weight-bold">Swift&Found</h2>
       </div>
 
       <v-list density="compact" class="pa-4">
@@ -41,8 +41,8 @@
       <v-container fluid class="pa-6 pa-md-8 pa-lg-10">
         <div class="d-flex flex-wrap align-center justify-space-between mb-6">
           <h1 class="text-h3 font-weight-black">Dashboard</h1>
-          <v-btn color="primary" prepend-icon="mdi-plus-circle" size="large">
-            <NuxtLink to="step_one">Add New Item</NuxtLink>
+          <v-btn color="primary" prepend-icon="mdi-plus-circle" size="large" @click="navigateTo('/')">
+            Add New Item
           </v-btn>
         </div>
 
