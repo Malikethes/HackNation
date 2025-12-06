@@ -161,7 +161,7 @@ const {
   prevStep 
 } = useFormSteps()
 
-const valid = ref(false)
+const valid =    ref(false)
 const form = ref(null)
 
 const stepConfig = computed(() => getStepConfig(currentStep.value))

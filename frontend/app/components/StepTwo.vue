@@ -44,6 +44,7 @@
             label="Postal code"
             variant="outlined"
             color="primary"
+            density="comfortable"
             placeholder="E.g., 00-001"
             :rules="[rules.required]"
           />

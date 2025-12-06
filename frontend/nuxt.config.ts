@@ -37,4 +37,9 @@ export default defineNuxtConfig({
       },
     },
   },
+  runtimeConfig: {
+    public: {
+      apiBase: 'https://03c45a0d90a3.ngrok-free.app/api'
+    }
+  }
 })

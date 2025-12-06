@@ -30,6 +30,7 @@
       <v-card-title class="text-h6 font-weight-bold pa-6">
         Place and Time of Finding
       </v-card-title>
+
       <v-card-text class="pa-6 pt-0">
         <v-row>
           <v-col cols="12" md="6">
@@ -71,7 +72,7 @@
         Finder's Details
       </v-card-title>
       <v-card-text class="pa-6 pt-0">
-        <v-divider class="mb-4" />
+        <v-divider class="mb-4" color="grey-lighten-2" />
         
         <div class="summary-row">
           <span class="summary-label">Full Name</span>
@@ -98,7 +99,7 @@
       </v-card-text>
     </v-card>
 
-    <div class="d-flex flex-column-reverse flex-sm-row align-center justify-space-between gap-4 pa-4 mt-6" style="border-top: 1px solid rgb(var(--v-theme-surface-variant))">
+   <div class="d-flex flex-column-reverse flex-sm-row align-center justify-space-between gap-4 pa-4 mt-6" style="border-top: 1px solid rgba(0, 0, 0, 0.12)">
       <v-btn
         variant="outlined"
         color="slate"
@@ -114,7 +115,7 @@
         size="large"
         rounded="lg"
         elevation="0"
-        class="text-none font-weight-semibold px-8"
+        class="text-none font-weight-semibold px-6"
         prepend-icon="mdi-check-circle"
         @click="$emit('confirm')"
       >

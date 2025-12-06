@@ -25,13 +25,6 @@
           class="mb-2"
           active
         />
-        <v-list-item
-          prepend-icon="mdi-format-list-text"
-          title="All Items"
-          value="all-items"
-          rounded="lg"
-          class="mb-2"
-        />
       </v-list>
     </v-navigation-drawer>
 
@@ -51,7 +44,7 @@
             <v-card elevation="1" rounded="lg">
               <v-card-text>
                 <p class="text-body-1 text-medium-emphasis mb-2">Total Items Published</p>
-                <p class="text-h4 font-weight-bold">1,234</p>
+                <p class="text-h4 font-weight-bold">{{ stats.totalItems }}</p>
               </v-card-text>
             </v-card>
           </v-col>
@@ -59,7 +52,7 @@
             <v-card elevation="1" rounded="lg">
               <v-card-text>
                 <p class="text-body-1 text-medium-emphasis mb-2">Items Found this Month</p>
-                <p class="text-h4 font-weight-bold">89</p>
+                <p class="text-h4 font-weight-bold">{{ stats.itemsThisMonth }}</p>
               </v-card-text>
             </v-card>
           </v-col>
@@ -67,7 +60,7 @@
             <v-card elevation="1" rounded="lg">
               <v-card-text>
                 <p class="text-body-1 text-medium-emphasis mb-2">Items Awaiting Publication</p>
-                <p class="text-h4 font-weight-bold">12</p>
+                <p class="text-h4 font-weight-bold">{{ stats.itemsAwaitingPublication }}</p>
               </v-card-text>
             </v-card>
           </v-col>
@@ -77,8 +70,7 @@
           <v-card-text>
             <div class="d-flex flex-column flex-sm-row align-sm-center justify-space-between mb-6">
               <div class="mb-4 mb-sm-0">
-                <h3 class="text-h6 font-weight-bold mb-1">Recently Published Items</h3>
-                <p class="text-body-2 text-medium-emphasis">A list of the most recently added items.</p>
+                <h3 class="text-h6 font-weight-bold mb-1">All Published Items</h3>
               </div>
               <v-text-field
                 v-model="search"
@@ -95,6 +87,7 @@
               :headers="headers"
               :items="items"
               :search="search"
+              :loading="loading"
               class="elevation-0"
               hover
             >
@@ -121,6 +114,13 @@
 
 <script setup lang="ts">
 const search = ref('')
+const items = ref<any[]>([])
+const loading = ref(false)
+const stats = ref({
+  totalItems: 0,
+  itemsThisMonth: 0,
+  itemsAwaitingPublication: 0
+})
 
 const headers = [
   { title: 'Item ID', key: 'id', sortable: true },
@@ -130,45 +130,45 @@ const headers = [
   { title: 'Status', key: 'status', sortable: true },
 ]
 
+const { fetchItems } = useApi()
 
-// Sample data
-const items = ref([
-  {
-    id: '#1203',
-    description: 'Black Leather Wallet',
-    category: 'Personal Items',
-    dateAdded: '2023-10-26',
-    status: 'Published',
-  },
-  {
-    id: '#1202',
-    description: 'iPhone 14 Pro',
-    category: 'Electronics',
-    dateAdded: '2023-10-25',
-    status: 'Published',
-  },
-  {
-    id: '#1201',
-    description: 'Set of Keys',
-    category: 'Keys',
-    dateAdded: '2023-10-24',
-    status: 'Draft',
-  },
-  {
-    id: '#1200',
-    description: 'Blue Bicycle',
-    category: 'Vehicles',
-    dateAdded: '2023-10-23',
-    status: 'Published',
-  },
-  {
-    id: '#1199',
-    description: 'Brown Sunglasses',
-    category: 'Accessories',
-    dateAdded: '2023-10-22',
-    status: 'Published',
-  },
-])
+const loadData = async () => {
+  loading.value = true
+  try {
+    const response = await fetchItems()
+    const itemsArray = Array.isArray(response) ? response : []
+
+    items.value = itemsArray.map((item: any) => ({
+      id: `#${item.id}`,
+      description: item.description || item.name || 'No description',
+      category: item.category?.name || 'Uncategorized',
+      dateAdded: new Date(item.dateLost || item.createdAt).toLocaleDateString('en-CA'),
+      status: item.status === 1 ? 'Published' : 'Draft',
+      rawStatus: item.status
+    }))
+
+    stats.value.totalItems = items.value.filter((item: any) => item.rawStatus === 1).length
+    
+    const currentMonth = new Date().getMonth()
+    const currentYear = new Date().getFullYear()
+    
+    stats.value.itemsThisMonth = items.value.filter((item: any) => {
+      const itemDate = new Date(item.dateAdded)
+      return itemDate.getMonth() === currentMonth && itemDate.getFullYear() === currentYear
+    }).length
+    
+    stats.value.itemsAwaitingPublication = items.value.filter((item: any) => item.rawStatus === 0).length
+    
+  } catch (error) {
+    console.error('Failed to load items:', error)
+  } finally {
+    loading.value = false
+  }
+}
+
+onMounted(() => {
+  loadData()
+})
 </script>
 
 <style scoped>
