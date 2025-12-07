@@ -147,124 +147,35 @@ import ItemFilters from '~/components/itemsList/ItemFilters.vue'
 import ItemCard from '~/components/itemsList/ItemCard.vue'
 import ItemViewDialog from '~/components/itemsList/ItemViewDialog.vue'
 
-const search = ref('')
-const deleteDialog = ref(false)
-const viewDialog = ref(false)
-const selectedItem = ref<any>(null)
-const filterCategory = ref<string | null>(null)
-const filterStatus = ref<string | null>(null)
-const sortBy = ref('dateNewest')
 const aiSearchDialog = ref(false)
-const uploadedPhoto = ref<string | null>(null)
-const fileInput = ref<HTMLInputElement | null>(null)
-const searchingAI = ref(false)
 
-const { items, loading, loadData } = useDashboardData()
-const { deleteItem } = useApi()
+const {
+  search,
+  filterCategory,
+  filterStatus,
+  sortBy,
+  deleteDialog,
+  viewDialog,
+  selectedItem,
+  loading,
+  categoryOptions,
+  filteredItems,
+  loadData,
+  viewItem,
+  editItem,
+  deleteItemConfirm,
+  confirmDelete
+} = useItemsPage()
 
-const categoryOptions = computed(() => {
-  const categories = new Set(items.value.map((item: any) => item.category).filter(Boolean))
-  return Array.from(categories).sort()
-})
-
-const filteredItems = computed(() => {
-  let filtered = [...items.value]
-  
-  if (search.value) {
-    const searchLower = search.value.toLowerCase()
-    filtered = filtered.filter((item: any) => 
-      item.name?.toLowerCase().includes(searchLower) ||
-      item.description?.toLowerCase().includes(searchLower) ||
-      item.category?.toLowerCase().includes(searchLower)
-    )
-  }
-  
-  if (filterCategory.value) {
-    filtered = filtered.filter((item: any) => item.category === filterCategory.value)
-  }
-  
-  if (filterStatus.value) {
-    filtered = filtered.filter((item: any) => item.status === filterStatus.value)
-  }
-  
-  filtered.sort((a: any, b: any) => {
-    switch (sortBy.value) {
-      case 'dateNewest':
-        return new Date(b.dateAdded).getTime() - new Date(a.dateAdded).getTime()
-      case 'dateOldest':
-        return new Date(a.dateAdded).getTime() - new Date(b.dateAdded).getTime()
-      case 'nameAsc':
-        return (a.name || '').localeCompare(b.name || '')
-      case 'nameDesc':
-        return (b.name || '').localeCompare(a.name || '')
-      case 'category':
-        return (a.category || '').localeCompare(b.category || '')
-      default:
-        return 0
-    }
-  })
-  
-  return filtered
-})
-
-const viewItem = (item: any) => {
-  selectedItem.value = item
-  viewDialog.value = true
-}
-
-const editItem = (item: any) => {
-  const itemId = item.id.replace('#', '')
-  navigateTo(`/edit/${itemId}`)
-}
-
-const deleteItemConfirm = (item: any) => {
-  selectedItem.value = item
-  deleteDialog.value = true
-}
-
-const confirmDelete = async () => {
-  if (!selectedItem.value) return
-  
-  try {
-    const itemId = parseInt(selectedItem.value.id.replace('#', ''))
-    await deleteItem(itemId)
-    deleteDialog.value = false
-    selectedItem.value = null
-    await loadData()
-  } catch (error) {
-    console.error('Failed to delete item:', error)
-  }
-}
-
-const triggerFileInput = () => {
-  fileInput.value?.click()
-}
-
-const handleFileUpload = (event: Event) => {
-  const target = event.target as HTMLInputElement
-  const file = target.files?.[0]
-  if (file) {
-    const reader = new FileReader()
-    reader.onload = (e) => {
-      uploadedPhoto.value = e.target?.result as string
-    }
-    reader.readAsDataURL(file)
-  }
-}
-
-const removePhoto = () => {
-  uploadedPhoto.value = null
-  if (fileInput.value) {
-    fileInput.value.value = ''
-  }
-}
-
-const searchWithAI = async () => {
-  searchingAI.value = true
-  await new Promise(resolve => setTimeout(resolve, 2000))
-  searchingAI.value = false
-  console.log('AI search with photo:', uploadedPhoto.value)
-}
+const {
+  uploadedPhoto,
+  fileInput,
+  searchingAI,
+  triggerFileInput,
+  handleFileUpload,
+  removePhoto,
+  searchWithAI
+} = useAISearch()
 
 onMounted(() => {
   loadData()
