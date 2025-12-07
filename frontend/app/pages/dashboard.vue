@@ -257,9 +257,8 @@ const viewItem = (item: any) => {
 }
 
 const editItem = (item: any) => {
-  // Navigate to edit page with item id
   const itemId = item.id.replace('#', '')
-  navigateTo(`/?edit=${itemId}`)
+  navigateTo(`/edit/${itemId}`)
 }
 
 const deleteItemConfirm = (item: any) => {
