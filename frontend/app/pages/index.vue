@@ -118,7 +118,7 @@
                   class="text-none font-weight-semibold"
                   @click="handleBack"
                 >
-                  {{ currentStep === 1 ? 'Cancel' : currentStep === 3 ? 'Skip This Step' : 'Back' }}
+                  {{ currentStep === 1 ? 'Cancel' : currentStep === 3 ? 'Back' : 'Back' }}
                 </v-btn>
                 <v-btn
                   color="primary"
