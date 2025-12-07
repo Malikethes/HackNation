@@ -18,12 +18,22 @@
       <v-list density="compact" class="pa-4">
         <v-list-item
           prepend-icon="mdi-view-dashboard"
-          title="Dashboard"
+          title="Admin Dashboard"
           value="dashboard"
           color="primary"
           rounded="lg"
           class="mb-2"
+          @click="navigateTo('/dashboard')"
           active
+        />
+        <v-list-item
+          prepend-icon="mdi-format-list-bulleted-square"
+          title="Items List"
+          value="items"
+          color="primary"
+          rounded="lg"
+          class="mb-2"
+          @click="navigateTo('/items')"
         />
       </v-list>
     </v-navigation-drawer>
@@ -35,9 +45,6 @@
         <div class="d-flex flex-wrap align-center justify-space-between mb-6">
           <h1 class="text-h3 font-weight-black">Dashboard</h1>
           <div class="d-flex gap-3">
-            <v-btn color="secondary" class="mr-3" prepend-icon="mdi-camera-iris" size="large" @click="aiSearchDialog = true">
-              Find item using AI
-            </v-btn>
             <v-btn color="primary" prepend-icon="mdi-plus-circle" size="large" @click="navigateTo('/')">
               Add New Item
             </v-btn>

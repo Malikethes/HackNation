@@ -1,6 +1,6 @@
 export const useApi = () => {
     const config = useRuntimeConfig()
-    const baseURL = 'https://03c45a0d90a3.ngrok-free.app/api'
+    const baseURL = 'https://d483f0abf821.ngrok-free.app/api'
 
     const fetchItems = async () => {
         try {
