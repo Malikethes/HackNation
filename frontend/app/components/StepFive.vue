@@ -89,6 +89,7 @@
 
     <v-card elevation="1" rounded="lg" class="mb-6">
       <v-card-title class="text-h6 font-weight-bold pa-6">
+        <v-icon icon="mdi-account" class="mr-2" color="primary" />
         Finder's Details
       </v-card-title>
       <v-card-text class="pa-6 pt-0">
@@ -110,11 +111,44 @@
           <span class="summary-label">Email Address</span>
           <span class="summary-value">{{ formData.contactEmail || 'Not specified' }}</span>
         </div>
+      </v-card-text>
+    </v-card>
+
+    <v-card elevation="1" rounded="lg" class="mb-6">
+      <v-card-title class="text-h6 font-weight-bold pa-6">
+        <v-icon icon="mdi-package-variant-closed" class="mr-2" color="primary" />
+        Storage Information
+      </v-card-title>
+      <v-card-text class="pa-6 pt-0">
+        <v-divider class="mb-4" color="grey-lighten-2" />
+        
+        <div class="summary-row">
+          <span class="summary-label">Storage Location</span>
+          <span class="summary-value">{{ formData.storageLocation || 'Not specified' }}</span>
+        </div>
         <v-divider />
         
         <div class="summary-row">
-          <span class="summary-label">Storage Address</span>
+          <span class="summary-label">Pickup Address</span>
           <span class="summary-value">{{ formData.storageAddress || 'Not specified' }}</span>
+        </div>
+        <v-divider />
+        
+        <div class="summary-row">
+          <span class="summary-label">Storage Contact Phone</span>
+          <span class="summary-value">{{ formData.storagePhone || 'Not specified' }}</span>
+        </div>
+        <v-divider />
+        
+        <div class="summary-row">
+          <span class="summary-label">Storage Contact Email</span>
+          <span class="summary-value">{{ formData.storageEmail || 'Not specified' }}</span>
+        </div>
+        <v-divider v-if="formData.storageInstructions" />
+        
+        <div v-if="formData.storageInstructions" class="summary-row">
+          <span class="summary-label">Pickup Instructions</span>
+          <span class="summary-value">{{ formData.storageInstructions }}</span>
         </div>
       </v-card-text>
     </v-card>

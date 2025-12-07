@@ -23,7 +23,11 @@ export const useFormSteps = () => {
     contactPerson: '',
     contactPhone: '',
     contactEmail: '',
+    storageLocation: '',
     storageAddress: '',
+    storagePhone: '',
+    storageEmail: '',
+    storageInstructions: '',
   })
 
   const provinces = [
@@ -91,8 +95,8 @@ export const useFormSteps = () => {
       },
       4: {
         title: 'Review',
-        heading: 'Step 4: Review & Publish',
-        description: 'Please review all information carefully before publishing.',
+        heading: 'Step 4: Storage Information',
+        description: 'Please add information about storage in which items contained.',
         progress: 80,
       },
       5: {
