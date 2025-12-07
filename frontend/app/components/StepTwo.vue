@@ -137,8 +137,8 @@ const emit = defineEmits(['update:valid'])
 
 const form = ref(null)
 const mapContainer = ref<HTMLElement | null>(null)
-let map: google.maps.Map | null = null
-let marker: google.maps.Marker | null = null
+let map: any = null
+let marker: any = null
 
 const openMapLink = () => {
   const lat = props.formData.latitude || '52.2297'
@@ -153,7 +153,8 @@ const initMap = () => {
   const lng = parseFloat(props.formData.longitude) || 21.0122
   const center = { lat, lng }
 
-  map = new google.maps.Map(mapContainer.value, {
+  const googleMaps = (window as any).google.maps
+  map = new googleMaps.Map(mapContainer.value, {
     center: center,
     zoom: 15,
     mapTypeControl: true,
@@ -161,14 +162,13 @@ const initMap = () => {
     fullscreenControl: true,
   })
 
-  marker = new google.maps.Marker({
+  marker = new googleMaps.Marker({
     position: center,
     map: map,
     draggable: true,
     title: 'Click to set location'
   })
 
-  // Update coordinates when marker is dragged
   marker.addListener('dragend', () => {
     if (marker) {
       const position = marker.getPosition()
@@ -179,8 +179,7 @@ const initMap = () => {
     }
   })
 
-  // Update marker position when clicking on map
-  map.addListener('click', (e: google.maps.MapMouseEvent) => {
+  map.addListener('click', (e: any) => {
     if (e.latLng && marker) {
       marker.setPosition(e.latLng)
       props.formData.latitude = e.latLng.lat().toFixed(6)
@@ -190,7 +189,7 @@ const initMap = () => {
 }
 
 const loadGoogleMaps = () => {
-  if (typeof google !== 'undefined' && google.maps) {
+  if (typeof (window as any).google !== 'undefined' && (window as any).google.maps) {
     initMap()
     return
   }
@@ -205,7 +204,6 @@ const loadGoogleMaps = () => {
   document.head.appendChild(script)
 }
 
-// Watch for coordinate changes from text fields
 watch([() => props.formData.latitude, () => props.formData.longitude], ([newLat, newLng]) => {
   if (marker && newLat && newLng) {
     const lat = parseFloat(newLat)

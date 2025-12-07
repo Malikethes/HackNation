@@ -20,7 +20,7 @@ export const useDashboardData = () => {
           
           if (!item.category && item.categoryId) {
             try {
-              const category = await fetchCategoriesById(item.categoryId)
+              const category: any = await fetchCategoriesById(item.categoryId)
               categoryName = category?.name || 'Uncategorized'
             } catch (error) {
               console.error(`Failed to fetch category ${item.categoryId}:`, error)
@@ -33,7 +33,7 @@ export const useDashboardData = () => {
             description: item.description || item.name || 'No description',
             category: categoryName,
             dateAdded: new Date(item.dateLost || item.createdAt).toLocaleDateString('en-CA'),
-            status: item.status === 1 ? 'Published' : 'Draft',
+            status: item.status === 2 ? 'Archived' : (item.status === 1 ? 'Published' : 'Draft'),
             rawStatus: item.status,
             photoUrl: item.photoUrl || 'https://via.placeholder.com/300',
             location: item.location

@@ -5,6 +5,7 @@ export const useFormSteps = () => {
   const { fetchCategories } = useApi()
 
   const formData = reactive({
+    photo: null as File[] | null,
     itemType: '',
     description: '',
     uniqueIdentifiers: '',

@@ -25,10 +25,6 @@
         </div>
         <v-divider />
         
-        <div class="summary-row">
-          <span class="summary-label">Unique Identifiers</span>
-          <span class="summary-value">{{ formData.uniqueIdentifiers || 'None' }}</span>
-        </div>
       </v-card-text>
     </v-card>
 
