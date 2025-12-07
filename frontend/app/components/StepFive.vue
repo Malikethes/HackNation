@@ -106,6 +106,7 @@
         size="large"
         rounded="lg"
         class="text-none font-weight-semibold"
+        :disabled="submitting"
         @click="$emit('cancel')"
       >
         Save Draft
@@ -117,6 +118,8 @@
         elevation="0"
         class="text-none font-weight-semibold px-6"
         prepend-icon="mdi-check-circle"
+        :loading="submitting"
+        :disabled="submitting"
         @click="$emit('confirm')"
       >
         Publish Data
@@ -128,6 +131,7 @@
 <script setup lang="ts">
 defineProps<{
   formData: any
+  submitting?: boolean
 }>()
 
 defineEmits(['confirm', 'edit', 'cancel'])
