@@ -34,9 +34,14 @@
       <v-container fluid class="pa-6 pa-md-8 pa-lg-10">
         <div class="d-flex flex-wrap align-center justify-space-between mb-6">
           <h1 class="text-h3 font-weight-black">Dashboard</h1>
-          <v-btn color="primary" prepend-icon="mdi-plus-circle" size="large" @click="navigateTo('/')">
-            Add New Item
-          </v-btn>
+          <div class="d-flex gap-3">
+            <v-btn color="secondary" class="mr-3" prepend-icon="mdi-camera-iris" size="large" @click="aiSearchDialog = true">
+              Find item using AI
+            </v-btn>
+            <v-btn color="primary" prepend-icon="mdi-plus-circle" size="large" @click="navigateTo('/')">
+              Add New Item
+            </v-btn>
+          </div>
         </div>
 
         <v-row class="mb-8">
@@ -228,6 +233,60 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+
+    <!-- AI Search Dialog -->
+    <v-dialog v-model="aiSearchDialog" max-width="600">
+      <v-card>
+        <v-card-title class="d-flex justify-space-between align-center pa-6">
+          <div>
+            <h3 class="text-h5 font-weight-bold mb-1">Find Your Item with AI</h3>
+            <p class="text-body-2 text-medium-emphasis">Upload a photo and let AI help you find matching items</p>
+          </div>
+          <v-btn icon="mdi-close" variant="text" @click="aiSearchDialog = false" />
+        </v-card-title>
+        <v-divider />
+        <v-card-text class="pa-6">
+          <div v-if="!uploadedPhoto" class="upload-area" @click="triggerFileInput">
+            <v-icon size="64" color="primary" class="mb-4">mdi-cloud-upload</v-icon>
+            <p class="text-h6 mb-2">Upload a photo</p>
+            <p class="text-body-2 text-medium-emphasis mb-4">Click to browse or drag and drop</p>
+            <v-btn color="primary" variant="tonal">
+              Choose File
+            </v-btn>
+            <input 
+              ref="fileInput" 
+              type="file" 
+              accept="image/*" 
+              style="display: none" 
+              @change="handleFileUpload"
+            />
+          </div>
+          
+          <div v-else class="uploaded-preview">
+            <v-img :src="uploadedPhoto" class="rounded-lg mb-4" max-height="300" contain />
+            <div class="d-flex gap-2 mb-4">
+              <v-btn variant="outlined" color="error" @click="removePhoto" prepend-icon="mdi-delete">
+                Remove Photo
+              </v-btn>
+              <v-btn variant="outlined" @click="triggerFileInput" prepend-icon="mdi-camera">
+                Change Photo
+              </v-btn>
+            </div>
+            <v-divider class="my-4" />
+            <v-btn 
+              color="primary" 
+              size="large" 
+              block 
+              prepend-icon="mdi-magnify" 
+              :loading="searchingAI"
+              @click="searchWithAI"
+            >
+              Search with AI
+            </v-btn>
+          </div>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
   </v-app>
 </template>
 
@@ -236,6 +295,10 @@ const search = ref('')
 const deleteDialog = ref(false)
 const viewDialog = ref(false)
 const selectedItem = ref<any>(null)
+const aiSearchDialog = ref(false)
+const uploadedPhoto = ref<string | null>(null)
+const fileInput = ref<HTMLInputElement | null>(null)
+const searchingAI = ref(false)
 
 const headers = [
   { title: 'Item ID', key: 'id', sortable: true },
@@ -292,6 +355,38 @@ const openMapForItem = (location: any) => {
   window.open(`https://www.google.com/maps?q=${lat},${lng}`, '_blank')
 }
 
+const triggerFileInput = () => {
+  fileInput.value?.click()
+}
+
+const handleFileUpload = (event: Event) => {
+  const target = event.target as HTMLInputElement
+  const file = target.files?.[0]
+  if (file) {
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      uploadedPhoto.value = e.target?.result as string
+    }
+    reader.readAsDataURL(file)
+  }
+}
+
+const removePhoto = () => {
+  uploadedPhoto.value = null
+  if (fileInput.value) {
+    fileInput.value.value = ''
+  }
+}
+
+const searchWithAI = async () => {
+  searchingAI.value = true
+  // Simulate AI search - placeholder for future implementation
+  await new Promise(resolve => setTimeout(resolve, 2000))
+  searchingAI.value = false
+  // TODO: Implement AI search logic here
+  console.log('AI search with photo:', uploadedPhoto.value)
+}
+
 onMounted(() => {
   loadData()
 })
@@ -307,5 +402,23 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.upload-area {
+  border: 2px dashed rgb(var(--v-theme-primary));
+  border-radius: 12px;
+  padding: 48px 24px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.upload-area:hover {
+  background-color: rgba(var(--v-theme-primary), 0.05);
+  border-color: rgb(var(--v-theme-primary));
+}
+
+.uploaded-preview {
+  text-align: center;
 }
 </style>
