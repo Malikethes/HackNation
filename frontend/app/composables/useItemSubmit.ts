@@ -3,7 +3,7 @@ export const useItemSubmit = () => {
   const submitting = ref(false)
   const submitError = ref('')
 
-  const submitItem = async (formData: any) => {
+  const submitItem = async (formData: any, isDraft: boolean = false) => {
     submitting.value = true
     submitError.value = ''
     
@@ -15,12 +15,12 @@ export const useItemSubmit = () => {
       const categoryId = category?.id || 1
 
       const locationData = {
-        longitude: parseFloat(formData.longitude) || 0,
-        latitude: parseFloat(formData.latitude) || 0,
-        address: formData.street || 'Unknown Address',
-        city: formData.city || 'Unknown City',
-        provinceId: 1,
-        postalCode: formData.postalCode || '00-000'
+        Longitude: parseFloat(formData.longitude) || 0,
+        Latitude: parseFloat(formData.latitude) || 0,
+        Address: formData.street || 'Unknown Address',
+        City: formData.city || 'Unknown City',
+        ProvinceId: 1,
+        PostalCode: formData.postalCode || '00-000'
       }
       
       const location: any = await createLocation(locationData)
@@ -37,7 +37,7 @@ export const useItemSubmit = () => {
       
       formDataToSend.append('categoryId', categoryId.toString())
       formDataToSend.append('locationId', location.id.toString())
-      formDataToSend.append('status', '1') 
+      formDataToSend.append('status', isDraft ? '0' : '1') 
       
       await createItem(formDataToSend)
       

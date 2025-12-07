@@ -108,15 +108,7 @@
         </v-col>
         <v-col cols="12">
           <v-card elevation="0" rounded="lg" class="overflow-hidden mb-4">
-            <iframe
-              :src="mapUrl"
-              width="100%"
-              height="400"
-              style="border:0;"
-              allowfullscreen
-              loading="lazy"
-              referrerpolicy="no-referrer-when-downgrade"
-            ></iframe>
+            <div ref="mapContainer" style="width: 100%; height: 400px;"></div>
           </v-card>
           <v-btn
             color="primary"
@@ -141,21 +133,96 @@ const props = defineProps<{
   valid: boolean
 }>()
 
-defineEmits(['update:valid'])
+const emit = defineEmits(['update:valid'])
 
 const form = ref(null)
-
-const mapUrl = computed(() => {
-  const lat = props.formData.latitude || '52.2297'
-  const lng = props.formData.longitude || '21.0122'
-  return `https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${lat},${lng}&zoom=15`
-})
+const mapContainer = ref<HTMLElement | null>(null)
+let map: google.maps.Map | null = null
+let marker: google.maps.Marker | null = null
 
 const openMapLink = () => {
   const lat = props.formData.latitude || '52.2297'
   const lng = props.formData.longitude || '21.0122'
   window.open(`https://www.google.com/maps?q=${lat},${lng}`, '_blank')
 }
+
+const initMap = () => {
+  if (!mapContainer.value) return
+
+  const lat = parseFloat(props.formData.latitude) || 52.2297
+  const lng = parseFloat(props.formData.longitude) || 21.0122
+  const center = { lat, lng }
+
+  map = new google.maps.Map(mapContainer.value, {
+    center: center,
+    zoom: 15,
+    mapTypeControl: true,
+    streetViewControl: true,
+    fullscreenControl: true,
+  })
+
+  marker = new google.maps.Marker({
+    position: center,
+    map: map,
+    draggable: true,
+    title: 'Click to set location'
+  })
+
+  // Update coordinates when marker is dragged
+  marker.addListener('dragend', () => {
+    if (marker) {
+      const position = marker.getPosition()
+      if (position) {
+        props.formData.latitude = position.lat().toFixed(6)
+        props.formData.longitude = position.lng().toFixed(6)
+      }
+    }
+  })
+
+  // Update marker position when clicking on map
+  map.addListener('click', (e: google.maps.MapMouseEvent) => {
+    if (e.latLng && marker) {
+      marker.setPosition(e.latLng)
+      props.formData.latitude = e.latLng.lat().toFixed(6)
+      props.formData.longitude = e.latLng.lng().toFixed(6)
+    }
+  })
+}
+
+const loadGoogleMaps = () => {
+  if (typeof google !== 'undefined' && google.maps) {
+    initMap()
+    return
+  }
+
+  const script = document.createElement('script')
+  script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8`
+  script.async = true
+  script.defer = true
+  script.onload = () => {
+    initMap()
+  }
+  document.head.appendChild(script)
+}
+
+// Watch for coordinate changes from text fields
+watch([() => props.formData.latitude, () => props.formData.longitude], ([newLat, newLng]) => {
+  if (marker && newLat && newLng) {
+    const lat = parseFloat(newLat)
+    const lng = parseFloat(newLng)
+    if (!isNaN(lat) && !isNaN(lng)) {
+      const newPosition = { lat, lng }
+      marker.setPosition(newPosition)
+      if (map) {
+        map.setCenter(newPosition)
+      }
+    }
+  }
+})
+
+onMounted(() => {
+  loadGoogleMaps()
+})
 </script>
 
 <style scoped>

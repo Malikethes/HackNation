@@ -186,6 +186,30 @@
               {{ selectedItem.status }}
             </v-chip>
           </div>
+          <div v-if="selectedItem.location" class="mt-4">
+            <p class="text-caption text-medium-emphasis mb-2">Location on Map</p>
+            <v-card elevation="0" rounded="lg" class="overflow-hidden">
+              <iframe
+                :src="getMapUrl(selectedItem.location)"
+                width="100%"
+                height="300"
+                style="border:0;"
+                allowfullscreen
+                loading="lazy"
+                referrerpolicy="no-referrer-when-downgrade"
+              ></iframe>
+            </v-card>
+            <v-btn
+              color="primary"
+              variant="tonal"
+              prepend-icon="mdi-map-marker"
+              class="mt-3"
+              block
+              @click="openMapForItem(selectedItem.location)"
+            >
+              View on Google Maps
+            </v-btn>
+          </div>
         </v-card-text>
       </v-card>
     </v-dialog>
@@ -255,6 +279,18 @@ const confirmDelete = async () => {
   } catch (error) {
     console.error('Failed to delete item:', error)
   }
+}
+
+const getMapUrl = (location: any) => {
+  const lat = location?.latitude || '52.2297'
+  const lng = location?.longitude || '21.0122'
+  return `https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${lat},${lng}&zoom=15`
+}
+
+const openMapForItem = (location: any) => {
+  const lat = location?.latitude || '52.2297'
+  const lng = location?.longitude || '21.0122'
+  window.open(`https://www.google.com/maps?q=${lat},${lng}`, '_blank')
 }
 
 onMounted(() => {

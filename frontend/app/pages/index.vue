@@ -139,6 +139,7 @@
               :formData="formData"
               :submitting="submitting"
               @confirm="handleConfirm"
+              @save-draft="handleSaveDraft"
               @edit="handleEdit"
               @cancel="handleCancel"
             />
@@ -196,6 +197,13 @@ const handleNext = () => {
 
 const handleConfirm = async () => {
   const result = await submitItem(formData)
+  if (result.success) {
+    await navigateTo('/dashboard')
+  }
+}
+
+const handleSaveDraft = async () => {
+  const result = await submitItem(formData, true) // Pass true for draft
   if (result.success) {
     await navigateTo('/dashboard')
   }

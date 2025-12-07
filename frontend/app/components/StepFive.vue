@@ -131,7 +131,7 @@
         rounded="lg"
         class="text-none font-weight-semibold"
         :disabled="submitting"
-        @click="$emit('cancel')"
+        @click="$emit('save-draft')"
       >
         Save Draft
       </v-btn>
@@ -158,7 +158,7 @@ const props = defineProps<{
   submitting?: boolean
 }>()
 
-defineEmits(['confirm', 'edit', 'cancel'])
+defineEmits(['confirm', 'save-draft', 'edit', 'cancel'])
 
 const mapUrl = computed(() => {
   const lat = props.formData.latitude || '52.2297'

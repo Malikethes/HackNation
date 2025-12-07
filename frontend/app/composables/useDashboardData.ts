@@ -35,7 +35,8 @@ export const useDashboardData = () => {
             dateAdded: new Date(item.dateLost || item.createdAt).toLocaleDateString('en-CA'),
             status: item.status === 1 ? 'Published' : 'Draft',
             rawStatus: item.status,
-            photoUrl: item.photoUrl || 'https://via.placeholder.com/300'
+            photoUrl: item.photoUrl || 'https://via.placeholder.com/300',
+            location: item.location
           }
         })
       )
